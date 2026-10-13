@@ -9,9 +9,60 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="enemies.json">
+    <None Remove="Background\bg.png" />
+    <None Remove="enemies.json" />
+    <None Remove="Icons\goblin_1.png" />
+    <None Remove="Icons\goblin_5.png" />
+    <None Remove="Icons\goblin_7.png" />
+    <None Remove="Icons\goblin_8.png" />
+    <None Remove="Icons\skeleton_1.png" />
+    <None Remove="Icons\skeleton_2.png" />
+    <None Remove="Icons\troll_1.png" />
+    <None Remove="Icons\veriti_dobri.png" />
+    <None Remove="Icons\veriti_zli.png" />
+    <None Remove="Icons\veriti_zov.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="enemies.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Icons\goblin_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\goblin_5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\goblin_7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\goblin_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\skeleton_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\skeleton_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\troll_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\veriti_dobri.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\veriti_zli.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\veriti_zov.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Background\bg.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

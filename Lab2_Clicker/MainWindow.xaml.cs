@@ -1,83 +1,190 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Lab2_Clicker
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private void TestBtn_Click(object sender, RoutedEventArgs e)
+        // ===== ИГРОВЫЕ ОБЪЕКТЫ =====
+        private Player player;
+        private Enemy currentEnemy;
+        private CEnemyTemplateList templates;
+        private Random rnd = new Random();
+
+        // ===== СТАТИСТИКА =====
+        private int killedCount = 0;
+        private BigNumber totalDamage = new BigNumber(0);
+        private BigNumber totalGold = new BigNumber(0);
+
+        public MainWindow()
         {
-            BigNumber a = new BigNumber("3712117");
-            BigNumber b = new BigNumber("15512900");
-            BigNumber sum = a + b;
+            InitializeComponent();
 
-            BigNumber c = new BigNumber("7135654");
-            BigNumber mul = c * 23;
+            player = new Player();
+            templates = new CEnemyTemplateList();
 
-            MessageBox.Show($"Сумма: {sum}\n(ожидалось 19225017)\n\n" +
-                            $"Умножение: {mul}\n(ожидалось 164120042)");
+            LoadTemplatesFromJson();
+            SpawnNextEnemy();
+            UpdateUI();
         }
-        private void TestPlayerBtn_Click(object sender, RoutedEventArgs e)
+
+        // ===== ЗАГРУЗКА ШАБЛОНОВ ИЗ JSON =====
+        private void LoadTemplatesFromJson()
         {
-            Player p = new Player();
-            p.AddGold(new BigNumber("100"));
+            string path = "enemies.json";
 
-            string info = $"До: lvl={p.Lvl}, gold={p.Gold}, damage={p.Damage}, cost={p.UpgradeCost}\n";
-            bool ok = p.TryUpgrade();
-            info += $"Апгрейд: {ok}\n";
-            info += $"После: lvl={p.Lvl}, gold={p.Gold}, damage={p.Damage}, cost={p.UpgradeCost}";
-
-            MessageBox.Show(info);
-        }
-        private void TestEnemyBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Enemy enemy = new Enemy("Гоблин", new BigNumber(100), new BigNumber(10), "");
-            BigNumber damage = new BigNumber(30);
-
-            string log = "";
-            for (int i = 0; i < 4; i++)
+            if (!File.Exists(path))
             {
-                bool killed = enemy.TakeDamage(damage, out BigNumber reward);
-                log += $"Клик {i + 1}: HP = {enemy.CurrentHitPoints}, убит = {killed}, награда = {reward}\n";
+                MessageBox.Show("Файл enemies.json не найден! Положи его рядом с .exe");
+                return;
             }
 
-            MessageBox.Show(log);
-        }
-        private void TestChancesBtn_Click(object sender, RoutedEventArgs e)
-        {
-            CEnemyTemplateList list = new CEnemyTemplateList();
-            list.AddEnemy("Гоблин", "goblin.png", 100, 1.2, 10, 1.5, 3);
-            list.AddEnemy("Скелет", "skel.png", 80, 1.1, 8, 1.3, 5);
-            list.AddEnemy("Тролль", "troll.png", 200, 1.5, 20, 2.0, 2);
+            string json = File.ReadAllText(path);
+            List<CEnemyTemplate> loaded = JsonSerializer.Deserialize<List<CEnemyTemplate>>(json)
+                                          ?? new List<CEnemyTemplate>();
 
-            list.NormalizeChances();
-
-            // Проверим: сумма должна стать 1
-            Random rnd = new Random();
-            string log = "Нормализованные шансы:\n";
-            log += $"Гоблин: {list.GetEnemyByName("Гоблин").SpawnChance:F3}\n";
-            log += $"Скелет: {list.GetEnemyByName("Скелет").SpawnChance:F3}\n";
-            log += $"Тролль: {list.GetEnemyByName("Тролль").SpawnChance:F3}\n";
-
-            log += "\nВыбор 10 раз:\n";
-            for (int i = 0; i < 10; i++)
+            // Закидываем в наш список
+            foreach (var t in loaded)
             {
-                var picked = list.FindByChance(rnd.NextDouble());
-                log += picked.Name + " ";
+                templates.AddEnemy(t.Name, t.IconName, t.BaseLife,
+                                   t.LifeModifier, t.BaseGold,
+                                   t.GoldModifier, t.SpawnChance);
             }
 
-            MessageBox.Show(log);
+            // Нормализуем шансы
+            templates.NormalizeChances();
+        }
+
+        // ===== СОЗДАНИЕ НОВОГО ВРАГА =====
+        private void SpawnNextEnemy()
+        {
+            if (templates.GetListOfEnemyNames().Count == 0)
+            {
+                MessageBox.Show("Нет шаблонов противников!");
+                return;
+            }
+
+            // Выбираем шаблон по шансам
+            double chance = rnd.NextDouble();
+            CEnemyTemplate template = templates.FindByChance(chance);
+
+            if (template == null)
+                template = templates.GetEnemyByIndex(0);
+
+            // Считаем характеристики с модификаторами
+            // HP = BaseLife * (LifeModifier ^ player.Lvl)
+            BigNumber hp = new BigNumber(template.BaseLife);
+            for (int i = 0; i < player.Lvl - 1; i++)
+                hp = hp * template.LifeModifier;
+
+            // Gold = BaseGold * (GoldModifier ^ player.Lvl)
+            BigNumber gold = new BigNumber(template.BaseGold);
+            for (int i = 0; i < player.Lvl - 1; i++)
+                gold = gold * template.GoldModifier;
+
+            // Ищем иконку
+            string iconPath = FindIconPath(template.IconName);
+
+            currentEnemy = new Enemy(template.Name, hp, gold, iconPath);
+
+            // Обновляем иконку
+            try
+            {
+                if (!string.IsNullOrEmpty(iconPath))
+                    EnemyIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Absolute));
+                else
+                    EnemyIcon.Source = null;
+            }
+            catch
+            {
+                EnemyIcon.Source = null;
+            }
+        }
+
+        // Поиск иконки в папке Icons (если она есть)
+        private string FindIconPath(string iconName)
+        {
+            if (string.IsNullOrEmpty(iconName))
+                return "";
+
+            string iconsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Icons");
+            if (Directory.Exists(iconsDir))
+            {
+                string fullPath = Path.Combine(iconsDir, iconName);
+                if (File.Exists(fullPath))
+                    return fullPath;
+            }
+            return "";
+        }
+
+        // ===== КЛИК ПО ВРАГУ =====
+        private void EnemyIcon_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (currentEnemy == null || currentEnemy.IsDead)
+                return;
+
+            BigNumber damage = player.DealDamage();
+            totalDamage = totalDamage + damage;
+
+            bool killed = currentEnemy.TakeDamage(damage, out BigNumber reward);
+
+            if (killed)
+            {
+                player.AddGold(reward);
+                totalGold = totalGold + reward;
+                killedCount++;
+
+                // Небольшая задержка для читаемости
+                System.Threading.Tasks.Task.Delay(150).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        SpawnNextEnemy();
+                        UpdateUI();
+                    });
+                });
+            }
+
+            UpdateUI();
+        }
+
+        // ===== КНОПКА АПГРЕЙДА =====
+        private void UpgradeButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool upgraded = player.TryUpgrade();
+            if (upgraded)
+                UpdateUI();
+            else
+                MessageBox.Show("Недостаточно золота!");
+        }
+
+        // ===== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА =====
+        private void UpdateUI()
+        {
+            // Игрок
+            LevelText.Text = player.Lvl.ToString();
+            GoldText.Text = player.Gold.ToString();
+            DamageText.Text = player.Damage.ToString();
+            UpgradeCostText.Text = $"Стоимость: {player.UpgradeCost}";
+
+            // Враг
+            if (currentEnemy != null)
+            {
+                EnemyNameText.Text = currentEnemy.Name;
+                EnemyHpText.Text = $"{currentEnemy.CurrentHitPoints} / {currentEnemy.MaxHitPoints}";
+                EnemyRewardText.Text = currentEnemy.GoldReward.ToString();
+            }
+
+            // Статистика
+            KilledText.Text = killedCount.ToString();
+            TotalDamageText.Text = totalDamage.ToString();
+            TotalGoldText.Text = totalGold.ToString();
         }
     }
 }
