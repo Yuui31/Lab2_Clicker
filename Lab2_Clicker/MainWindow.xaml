@@ -11,6 +11,7 @@
             <Button x:Name="TestBtn" Content="Тест BigNumber" Margin="5" Padding="10,5" Click="TestBtn_Click"/>
             <Button x:Name="TestPlayerBtn" Content="Тест Player" Margin="5" Padding="10,5" Click="TestPlayerBtn_Click"/>
             <Button x:Name="TestEnemyBtn" Content="Тест Enemy" Margin="5" Padding="10,5" Click="TestEnemyBtn_Click"/>
+            <Button x:Name="TestChancesBtn" Content="Тест шансов" Click="TestChancesBtn_Click"/>
         </StackPanel>
     </Grid>
 </Window>

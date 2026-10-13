@@ -54,5 +54,30 @@ namespace Lab2_Clicker
 
             MessageBox.Show(log);
         }
+        private void TestChancesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            CEnemyTemplateList list = new CEnemyTemplateList();
+            list.AddEnemy("Гоблин", "goblin.png", 100, 1.2, 10, 1.5, 3);
+            list.AddEnemy("Скелет", "skel.png", 80, 1.1, 8, 1.3, 5);
+            list.AddEnemy("Тролль", "troll.png", 200, 1.5, 20, 2.0, 2);
+
+            list.NormalizeChances();
+
+            // Проверим: сумма должна стать 1
+            Random rnd = new Random();
+            string log = "Нормализованные шансы:\n";
+            log += $"Гоблин: {list.GetEnemyByName("Гоблин").SpawnChance:F3}\n";
+            log += $"Скелет: {list.GetEnemyByName("Скелет").SpawnChance:F3}\n";
+            log += $"Тролль: {list.GetEnemyByName("Тролль").SpawnChance:F3}\n";
+
+            log += "\nВыбор 10 раз:\n";
+            for (int i = 0; i < 10; i++)
+            {
+                var picked = list.FindByChance(rnd.NextDouble());
+                log += picked.Name + " ";
+            }
+
+            MessageBox.Show(log);
+        }
     }
 }
