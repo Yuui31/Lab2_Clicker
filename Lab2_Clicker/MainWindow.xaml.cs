@@ -28,5 +28,17 @@ namespace Lab2_Clicker
             MessageBox.Show($"Сумма: {sum}\n(ожидалось 19225017)\n\n" +
                             $"Умножение: {mul}\n(ожидалось 164120042)");
         }
+        private void TestPlayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Player p = new Player();
+            p.AddGold(new BigNumber("100"));
+
+            string info = $"До: lvl={p.Lvl}, gold={p.Gold}, damage={p.Damage}, cost={p.UpgradeCost}\n";
+            bool ok = p.TryUpgrade();
+            info += $"Апгрейд: {ok}\n";
+            info += $"После: lvl={p.Lvl}, gold={p.Gold}, damage={p.Damage}, cost={p.UpgradeCost}";
+
+            MessageBox.Show(info);
+        }
     }
 }

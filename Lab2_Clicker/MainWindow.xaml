@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Lab2_Clicker"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Button x:Name="TestBtn" Content="Тест BigNumber" Click="TestBtn_Click"/>
+    <Grid Margin="0,250,0,0">
+        <Button x:Name="TestBtn" Content="Тест BigNumber" Click="TestBtn_Click" Margin="0,-252,0,212"/>
+        <Button x:Name="TestPlayerBtn" Content="Тест Player" Click="TestPlayerBtn_Click"/>
     </Grid>
 </Window>
