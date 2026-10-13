@@ -40,5 +40,19 @@ namespace Lab2_Clicker
 
             MessageBox.Show(info);
         }
+        private void TestEnemyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Enemy enemy = new Enemy("Гоблин", new BigNumber(100), new BigNumber(10), "");
+            BigNumber damage = new BigNumber(30);
+
+            string log = "";
+            for (int i = 0; i < 4; i++)
+            {
+                bool killed = enemy.TakeDamage(damage, out BigNumber reward);
+                log += $"Клик {i + 1}: HP = {enemy.CurrentHitPoints}, убит = {killed}, награда = {reward}\n";
+            }
+
+            MessageBox.Show(log);
+        }
     }
 }

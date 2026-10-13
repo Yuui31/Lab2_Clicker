@@ -103,7 +103,10 @@ namespace Lab2_Clicker
         // ===== ВЫЧИТАНИЕ =====
         private BigNumber Subtract(BigNumber bnum)
         {
-            // Предполагаем, что this >= bnum
+            // ЗАЩИТА: если this < bnum, возвращаем 0 (некорректная операция)
+            if (this.CompareTo(bnum) < 0)
+                return new BigNumber(0);
+
             int maxLen = number.Length;
             int[] result = new int[maxLen];
             int borrow = 0;
@@ -114,6 +117,7 @@ namespace Lab2_Clicker
                 int b = (i < bnum.number.Length) ? bnum.number[bnum.number.Length - 1 - i] : 0;
 
                 int diff = a - b - borrow;
+
                 if (diff < 0)
                 {
                     diff += Base;
@@ -170,11 +174,11 @@ namespace Lab2_Clicker
         // ===== СРАВНЕНИЕ =====
         private int CompareTo(BigNumber bnum)
         {
-            // Сначала сравниваем по длине (у кого больше блоков — тот больше)
+            // 1. Сначала по длине — у кого больше блоков, тот больше
             if (number.Length > bnum.number.Length) return 1;
             if (number.Length < bnum.number.Length) return -1;
 
-            // Длина одинаковая — сравниваем по блокам
+            // 2. Длина одинаковая — сравниваем блоки слева направо
             for (int i = 0; i < number.Length; i++)
             {
                 if (number[i] > bnum.number[i]) return 1;
