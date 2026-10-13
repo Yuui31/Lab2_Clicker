@@ -16,9 +16,17 @@ namespace Lab2_Clicker
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private void TestBtn_Click(object sender, RoutedEventArgs e)
         {
-            InitializeComponent();
+            BigNumber a = new BigNumber("3712117");
+            BigNumber b = new BigNumber("15512900");
+            BigNumber sum = a + b;
+
+            BigNumber c = new BigNumber("7135654");
+            BigNumber mul = c * 23;
+
+            MessageBox.Show($"Сумма: {sum}\n(ожидалось 19225017)\n\n" +
+                            $"Умножение: {mul}\n(ожидалось 164120042)");
         }
     }
 }
