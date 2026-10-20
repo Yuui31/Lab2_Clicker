@@ -60,7 +60,7 @@
     </Window.Resources>
 
     <!-- Фон: картинка с затемнением через overlay -->
-    <Grid>
+    <Grid x:Name="MainGrid">
         <!-- Слой 1: картинка фона -->
         <Image Source="/Background/bg.png" 
                Stretch="UniformToFill"
@@ -127,6 +127,22 @@
                                Foreground="#8B6B3D"
                                HorizontalAlignment="Center"
                                Margin="0,10,0,0"/>
+                    <!-- НОВАЯ КНОПКА: Улучшение перезарядки -->
+                    <Button x:Name="CooldownUpgradeButton" Content="⚡ Ускорить удар" 
+        Style="{StaticResource FantasyButton}"
+        Margin="0,15,0,0"
+        Click="CooldownUpgradeButton_Click"/>
+                    <TextBlock x:Name="CooldownCostText" Text="Стоимость: 50"
+           FontFamily="Georgia" FontSize="12"
+           Foreground="#8B6B3D"
+           HorizontalAlignment="Center"
+           Margin="0,5,0,0"/>
+
+                    <TextBlock x:Name="CooldownInfoText" Text="КД: 0.5с"
+           FontFamily="Georgia" FontSize="12"
+           Foreground="#8B6B3D"
+           HorizontalAlignment="Center"
+           Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
 
