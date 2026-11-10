@@ -19,14 +19,14 @@ namespace Lab2_Clicker
         private CCountdownTimer clickCooldown;
         private BigNumber cooldownUpgradeCost;
 
-        public int Lvl { get { return lvl; } }
-        public BigNumber Gold { get { return gold; } }
-        public BigNumber Damage { get { return damage; } }
-        public double DamageModifier { get { return damageModifier; } }
-        public BigNumber UpgradeCost { get { return upgradeCost; } }
-        public double UpgradeModifier { get { return upgradeModifier; } }
+        public int Lvl { get { return lvl; } set { lvl = value; } }
+        public BigNumber Gold { get { return gold; } set { gold = value; } }
+        public BigNumber Damage { get { return damage; } set { damage = value; } }
+        public double DamageModifier { get { return damageModifier; } set { damageModifier = value; } }
+        public BigNumber UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
+        public double UpgradeModifier { get { return upgradeModifier; } set { upgradeModifier = value; } }
 
-        public BigNumber CooldownUpgradeCost { get { return cooldownUpgradeCost; } }
+        public BigNumber CooldownUpgradeCost { get { return cooldownUpgradeCost; } set { cooldownUpgradeCost = value; } }
         public bool IsReadyToClick { get { return clickCooldown.IsReady(); } }
         public double CurrentCooldown { get { return clickCooldown.GetTargetTime(); } }
 
@@ -35,7 +35,7 @@ namespace Lab2_Clicker
             lvl = 1;
             gold = new BigNumber(0);
             damage = new BigNumber(1); // Чтобы урон сразу рос (как мы чинили)
-            damageModifier = 1.5;
+            damageModifier = 1.7;
 
             upgradeCost = new BigNumber(1);
             upgradeModifier = 1.5;
