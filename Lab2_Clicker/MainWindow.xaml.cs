@@ -8,10 +8,10 @@ using System.Windows.Threading;
 
 namespace Lab2_Clicker
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, ISaveList<PlayerSaveData>
     {
         private Player player;
-        private Enemy currentEnemy;
+        private IEnemy currentEnemy;
         private CEnemyTemplateList templates;
         private Random rnd = new Random();
 
@@ -71,8 +71,7 @@ namespace Lab2_Clicker
         // Создаем сферу поверх монстра
         private void SpawnBonusSphere()
         {
-            // Теперь они спавнятся по всей ширине экрана, а не только справа
-            double x = rnd.Next(50, 1000); // Твой экран 1100 в ширину
+            double x = rnd.Next(50, 1000);
             double y = rnd.Next(50, 500);
             Point pos = new Point(x, y);
 
@@ -85,15 +84,24 @@ namespace Lab2_Clicker
 
             var sprite = sphere.GetSprite();
 
-            // Исправленный клик по сфере:
             sprite.MouseLeftButtonDown += (s, ev) =>
             {
                 sphere.ApplyEffect(player, this);
-                MainGrid.Children.Remove(sprite); // Удаляем сферу
-                ev.Handled = true; // Останавливаем клик, чтобы он не бил монстра
+                MainGrid.Children.Remove(sprite);
+                ev.Handled = true;
             };
 
             MainGrid.Children.Add(sprite);
+
+            // Таймер, который удалит сферу через 3 секунды, если по ней не кликнули
+            DispatcherTimer sphereTimer = new DispatcherTimer();
+            sphereTimer.Interval = TimeSpan.FromSeconds(3);
+            sphereTimer.Tick += (s, ev) =>
+            {
+                MainGrid.Children.Remove(sprite);
+                sphereTimer.Stop();
+            };
+            sphereTimer.Start();
         }
 
         // --- МЕТОДЫ БАФФОВ (вызываются из сфер) ---
@@ -195,7 +203,14 @@ namespace Lab2_Clicker
             // Ищем путь к иконке (как было в старой версии)
             string iconPath = FindIconPath(template.IconName);
 
-            currentEnemy = new Enemy(template.Name, hp, gold, iconPath);
+            // Рандомно выбираем тип врага (0, 1 или 2)
+            int enemyType = rnd.Next(0, 3);
+            string typeName = "CNormalEnemy"; // по умолчанию
+            if (enemyType == 1) typeName = "CArmoredEnemy";
+            else if (enemyType == 2) typeName = "CHealingEnemy";
+
+            // Создаем врага через фабрику!
+            currentEnemy = CEnemyFactory.CreateEnemy(typeName, template.Name, hp, gold, FindIconPath(template.IconName));
 
             // Показываем иконку
             try
@@ -222,6 +237,53 @@ namespace Lab2_Clicker
                 if (File.Exists(fullPath)) return fullPath;
             }
             return "";
+        }
+        public void SaveToJson(string path)
+        {
+            PlayerSaveData data = new PlayerSaveData
+            {
+                Lvl = player.Lvl,
+                Gold = player.Gold.ToString(),
+                Damage = player.Damage.ToString(),
+                UpgradeCost = player.UpgradeCost.ToString(),
+                CooldownUpgradeCost = player.CooldownUpgradeCost.ToString()
+            };
+
+            string json = JsonSerializer.Serialize(data);
+            File.WriteAllText(path, json);
+        }
+
+        // ЗАГРУЗКА
+        public void LoadFromJson(string path)
+        {
+            if (!File.Exists(path)) return;
+
+            string json = File.ReadAllText(path);
+            PlayerSaveData data = JsonSerializer.Deserialize<PlayerSaveData>(json);
+
+            if (data != null)
+            {
+                player.Lvl = data.Lvl;
+                player.Gold = new BigNumber(data.Gold);
+                player.Damage = new BigNumber(data.Damage);
+                player.UpgradeCost = new BigNumber(data.UpgradeCost);
+                player.CooldownUpgradeCost = new BigNumber(data.CooldownUpgradeCost);
+
+                MessageBox.Show("Игра загружена!");
+                UpdateUI();
+            }
+        }
+        private void SaveGame_Click(object sender, RoutedEventArgs e)
+        {
+            // Вызываем метод нашего интерфейса
+            SaveToJson("savegame.json");
+            MessageBox.Show("Игра сохранена!");
+        }
+
+        private void LoadGame_Click(object sender, RoutedEventArgs e)
+        {
+            // Вызываем метод нашего интерфейса
+            LoadFromJson("savegame.json");
         }
     }
 }

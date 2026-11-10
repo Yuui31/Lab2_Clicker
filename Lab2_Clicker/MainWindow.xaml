@@ -127,11 +127,18 @@
                                Foreground="#8B6B3D"
                                HorizontalAlignment="Center"
                                Margin="0,10,0,0"/>
+                    <!-- Кнопки сохранения -->
+                    <Button x:Name="SaveGameBtn" Content="💾 Сохранить игру" 
+        Style="{StaticResource FantasyButton}" 
+        Margin="0,20,0,0" Click="SaveGame_Click"/>
+                    <Button x:Name="LoadGameBtn" Content="📂 Загрузить игру" 
+        Style="{StaticResource FantasyButton}" 
+        Margin="0,10,0,0" Click="LoadGame_Click"/>
                     <!-- НОВАЯ КНОПКА: Улучшение перезарядки -->
                     <Button x:Name="CooldownUpgradeButton" Content="⚡ Ускорить удар" 
-        Style="{StaticResource FantasyButton}"
-        Margin="0,15,0,0"
-        Click="CooldownUpgradeButton_Click"/>
+                               Style="{StaticResource FantasyButton}"
+                               Margin="0,15,0,0"
+                               Click="CooldownUpgradeButton_Click"/>
                     <TextBlock x:Name="CooldownCostText" Text="Стоимость: 50"
            FontFamily="Georgia" FontSize="12"
            Foreground="#8B6B3D"
