@@ -147,8 +147,9 @@ namespace Lab2_Clicker
                 double a = (i < number.Length) ? number[number.Length - 1 - i] : 0;
                 double product = a * multiplier + carry;
 
-                result[maxLen - 1 - i] = (int)(product % Base);
-                carry = Math.Floor(product / Base);
+                double rounded = Math.Round(product, MidpointRounding.AwayFromZero);
+                result[maxLen - 1 - i] = (int)(rounded % Base);
+                carry = Math.Floor(rounded / Base);
             }
 
             return new BigNumber(result);

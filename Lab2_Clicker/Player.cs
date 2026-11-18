@@ -41,7 +41,7 @@ namespace Lab2_Clicker
             upgradeModifier = 1.5;
 
             // Перезарядка: старт 0.5 секунды, улучшение стоит 50 золота
-            clickCooldown = new CCountdownTimer(0.25);
+            clickCooldown = new CCountdownTimer(0.4);
             cooldownUpgradeCost = new BigNumber(50);
         }
 
